@@ -1,0 +1,12 @@
+run:
+  timeout: "5m"
+
+linters:
+  enable:
+    # using default linters + the below
+    # https://golangci-lint.run/usage/linters/#enabled-by-default
+    - bodyclose
+    - gofmt
+    - misspell
+    - testifylint
+    - tparallel

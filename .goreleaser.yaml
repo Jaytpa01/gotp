@@ -1,0 +1,16 @@
+# Make sure to check the documentation at https://goreleaser.com
+version: 2
+
+builds:
+  - skip: true
+
+release:
+  draft: true
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs"
+      - "^test"
+      - "^wip"
