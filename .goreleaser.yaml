@@ -4,6 +4,9 @@ version: 2
 builds:
   - skip: true
 
+release:
+  draft: true
+
 changelog:
   sort: asc
   filters:
