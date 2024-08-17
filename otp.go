@@ -39,8 +39,10 @@ func New(accountName string, options ...option) (*OTP, error) {
 	otp := &OTP{
 		algorithm:        TOTP,
 		hashingAlgorithm: sha1.New,
+		digits:           6,
 		secret:           defaultSecret,
 		window:           0,
+		period:           30,
 		count:            0,
 		issuer:           "",
 		accountName:      accountName,
