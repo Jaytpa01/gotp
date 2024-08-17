@@ -12,33 +12,33 @@ type HOTP struct {
 	hashingAlgorithm func() hash.Hash
 	secret           []byte
 	digits           int
-	count            uint64
+	count            int64
 }
 
 type Config struct {
 	HashingAlgorithm func() hash.Hash
 	Secret           []byte
 	Digits           int
-	Count            uint64
+	Count            int64
 }
 
-func New(cfg Config) *HOTP {
+func New(c Config) *HOTP {
 	return &HOTP{
-		hashingAlgorithm: cfg.HashingAlgorithm,
-		secret:           cfg.Secret,
-		digits:           cfg.Digits,
-		count:            cfg.Count,
+		hashingAlgorithm: c.HashingAlgorithm,
+		secret:           c.Secret,
+		digits:           c.Digits,
+		count:            c.Count,
 	}
 }
 
-func (o *HOTP) SetCount(c uint64) *HOTP {
+func (o *HOTP) SetCount(c int64) *HOTP {
 	o.count = c
 	return o
 }
 
 func (o *HOTP) Generate() string {
 	countBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(countBytes, o.count)
+	binary.BigEndian.PutUint64(countBytes, uint64(o.count))
 
 	mac := hmac.New(o.hashingAlgorithm, o.secret)
 	mac.Write(countBytes)
