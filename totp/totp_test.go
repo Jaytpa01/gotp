@@ -26,7 +26,7 @@ var (
 
 func TestTOTPGenerate(t *testing.T) {
 	tests := []struct {
-		epoch            int
+		epoch            int64
 		expectedTOTP     string
 		hashingAlgorithm func() hash.Hash
 		secret           []byte
@@ -57,14 +57,11 @@ func TestTOTPGenerate(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		totp := totp.New(totp.Config{
-			HashingAlgorithm: test.hashingAlgorithm,
-			Secret:           test.secret,
-			Digits:           8,
-			Period:           30,
-			Time:             time.Unix(int64(test.epoch), 0),
-		})
+		totp := totp.New(
+			totp.WithDigits(len(test.expectedTOTP)),
+			totp.WithHashingAlgorithm(test.hashingAlgorithm),
+		)
 
-		assert.Equal(t, test.expectedTOTP, totp.Generate())
+		assert.Equal(t, test.expectedTOTP, totp.Generate(test.secret, time.Unix(test.epoch, 0)))
 	}
 }

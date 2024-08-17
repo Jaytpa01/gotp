@@ -2,6 +2,7 @@ package hotp
 
 import (
 	"crypto/hmac"
+	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
 	"hash"
@@ -10,37 +11,24 @@ import (
 
 type HOTP struct {
 	hashingAlgorithm func() hash.Hash
-	secret           []byte
 	digits           int
-	count            int64
 }
 
-type Config struct {
-	HashingAlgorithm func() hash.Hash
-	Secret           []byte
-	Digits           int
-	Count            int64
-}
-
-func New(c Config) *HOTP {
-	return &HOTP{
-		hashingAlgorithm: c.HashingAlgorithm,
-		secret:           c.Secret,
-		digits:           c.Digits,
-		count:            c.Count,
+func New(opts ...option) *HOTP {
+	hotp := &HOTP{
+		hashingAlgorithm: sha1.New,
+		digits:           6,
 	}
+
+	hotp.applyOpts(opts...)
+	return hotp
 }
 
-func (o *HOTP) SetCount(c int64) *HOTP {
-	o.count = c
-	return o
-}
-
-func (o *HOTP) Generate() string {
+func (o *HOTP) Generate(secret []byte, count int64) string {
 	countBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(countBytes, uint64(o.count))
+	binary.BigEndian.PutUint64(countBytes, uint64(count))
 
-	mac := hmac.New(o.hashingAlgorithm, o.secret)
+	mac := hmac.New(o.hashingAlgorithm, secret)
 	mac.Write(countBytes)
 	h := mac.Sum(nil)
 
