@@ -6,7 +6,7 @@
   outputs =
     { self, nixpkgs }:
     let
-      goVersion = "23"; # Change this to update the whole stack
+      goVersion = "22"; # Change this to update the whole stack
 
       supportedSystems = [
         "x86_64-linux"
