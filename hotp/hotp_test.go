@@ -11,55 +11,24 @@ import (
 func TestHOTPGenerate(t *testing.T) {
 	// https://datatracker.ietf.org/doc/html/rfc4226#page-32
 	tests := []struct {
-		count        uint64
+		count        int64
 		expectedHOTP string
 	}{
-		{
-			count:        0,
-			expectedHOTP: "755224",
-		},
-		{
-			count:        1,
-			expectedHOTP: "287082",
-		},
-		{
-			count:        2,
-			expectedHOTP: "359152",
-		},
-		{
-			count:        3,
-			expectedHOTP: "969429",
-		},
-		{
-			count:        4,
-			expectedHOTP: "338314",
-		},
-		{
-			count:        5,
-			expectedHOTP: "254676",
-		},
-		{
-			count:        6,
-			expectedHOTP: "287922",
-		},
-		{
-			count:        7,
-			expectedHOTP: "162583",
-		},
-		{
-			count:        8,
-			expectedHOTP: "399871",
-		},
-		{
-			count:        9,
-			expectedHOTP: "520489",
-		},
+		{0, "755224"},
+		{1, "287082"},
+		{2, "359152"},
+		{3, "969429"},
+		{4, "338314"},
+		{5, "254676"},
+		{6, "287922"},
+		{7, "162583"},
+		{8, "399871"},
+		{9, "520489"},
 	}
 
-	secret := []byte("12345678901234567890")
 	hotp := hotp.New(hotp.Config{
 		HashingAlgorithm: sha1.New,
-		Secret:           secret,
+		Secret:           []byte("12345678901234567890"),
 		Digits:           6,
 	})
 
