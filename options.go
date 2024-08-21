@@ -1,8 +1,10 @@
 package gotp
 
 import (
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha512"
 	"fmt"
-	"hash"
 )
 
 type option func(*OTP) error
@@ -56,9 +58,20 @@ func WithHOTP() option {
 	}
 }
 
-func WithHashingAlgorithm(hashingAlgorithm func() hash.Hash) option {
+func WithHashingAlgorithm(ha hashingAlgorithm) option {
 	return func(o *OTP) error {
-		o.hashingAlgorithm = hashingAlgorithm
+		switch ha {
+		case SHA1:
+			o.hashingAlgorithm = sha1.New
+		case SHA256:
+			o.hashingAlgorithm = sha256.New
+		case SHA512:
+			o.hashingAlgorithm = sha512.New
+		default:
+			return fmt.Errorf("invalid hashing algorithm: %d", ha)
+		}
+
+		return nil
 	}
 }
 
