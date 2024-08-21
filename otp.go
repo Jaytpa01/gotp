@@ -31,21 +31,19 @@ type OTP struct {
 }
 
 func New(accountName string, options ...option) (*OTP, error) {
-	defaultSecret, err := RandomSecret(20)
+	s, err := RandomSecret(20)
 	if err != nil {
 		return nil, err
 	}
 
 	otp := &OTP{
-		algorithm:        TOTP,
-		hashingAlgorithm: sha1.New,
-		digits:           6,
-		secret:           defaultSecret,
-		window:           0,
-		period:           30,
-		count:            0,
-		issuer:           "",
 		accountName:      accountName,
+		secret:           s,
+		algorithm:        TOTP,
+		hashingAlgorithm: otp.DefaultHashingAlgorithm,
+		digits:           otp.DefaultDigits,
+		window:           otp.DefaultWindow,
+		period:           otp.DefaultPeriod,
 	}
 
 	if err := otp.applyOpts(options...); err != nil {

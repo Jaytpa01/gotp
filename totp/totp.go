@@ -1,11 +1,11 @@
 package totp
 
 import (
-	"crypto/sha1"
 	"hash"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
+	"github.com/Jaytpa01/gotp/internal/otp"
 )
 
 type TOTP struct {
@@ -17,10 +17,10 @@ type TOTP struct {
 
 func New(opts ...option) *TOTP {
 	totp := &TOTP{
-		hashingAlgorithm: sha1.New,
-		digits:           6,
-		period:           30,
-		window:           0,
+		hashingAlgorithm: otp.DefaultHashingAlgorithm,
+		digits:           otp.DefaultDigits,
+		period:           otp.DefaultPeriod,
+		window:           otp.DefaultWindow,
 	}
 
 	totp.applyOpts(opts...)

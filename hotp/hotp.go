@@ -2,11 +2,12 @@ package hotp
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
 	"hash"
 	"math"
+
+	"github.com/Jaytpa01/gotp/internal/otp"
 )
 
 type HOTP struct {
@@ -16,8 +17,8 @@ type HOTP struct {
 
 func New(opts ...option) *HOTP {
 	hotp := &HOTP{
-		hashingAlgorithm: sha1.New,
-		digits:           6,
+		hashingAlgorithm: otp.DefaultHashingAlgorithm,
+		digits:           otp.DefaultDigits,
 	}
 
 	hotp.applyOpts(opts...)
