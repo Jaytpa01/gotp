@@ -1,11 +1,11 @@
 package gotp
 
 import (
-	"crypto/sha1"
 	"hash"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
+	"github.com/Jaytpa01/gotp/internal/otp"
 	"github.com/Jaytpa01/gotp/totp"
 )
 
@@ -14,6 +14,14 @@ type algorithm int
 const (
 	TOTP algorithm = iota
 	HOTP
+)
+
+type hashingAlgorithm int
+
+const (
+	SHA1 hashingAlgorithm = iota
+	SHA256
+	SHA512
 )
 
 type OTP struct {
@@ -56,18 +64,10 @@ func New(accountName string, options ...option) (*OTP, error) {
 func (o *OTP) Generate() string {
 	switch o.algorithm {
 	case TOTP:
-		return totp.New(
-			totp.WithHashingAlgorithm(o.hashingAlgorithm),
-			totp.WithWindow(o.window),
-			totp.WithDigits(o.digits),
-			totp.WithPeriod(o.period),
-		).Generate(o.secret, time.Now())
+		return o.generateTOTP()
 
 	case HOTP:
-		return hotp.New(
-			hotp.WithHashingAlgorithm(o.hashingAlgorithm),
-			hotp.WithDigits(o.digits),
-		).Generate(o.secret, o.count)
+		return o.generateHOTP()
 
 	default:
 		return ""
@@ -80,4 +80,20 @@ func (o *OTP) Secret() []byte {
 
 func (o *OTP) SecretBase32() string {
 	return Base32Encode(o.secret)
+}
+
+func (o *OTP) generateTOTP() string {
+	return totp.New(
+		totp.WithHashingAlgorithm(o.hashingAlgorithm),
+		totp.WithWindow(o.window),
+		totp.WithDigits(o.digits),
+		totp.WithPeriod(o.period),
+	).Generate(o.secret, time.Now())
+}
+
+func (o *OTP) generateHOTP() string {
+	return hotp.New(
+		hotp.WithHashingAlgorithm(o.hashingAlgorithm),
+		hotp.WithDigits(o.digits),
+	).Generate(o.secret, o.count)
 }
