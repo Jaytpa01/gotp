@@ -59,6 +59,16 @@ func WithHOTP() option {
 func WithHashingAlgorithm(hashingAlgorithm func() hash.Hash) option {
 	return func(o *OTP) error {
 		o.hashingAlgorithm = hashingAlgorithm
+	}
+}
+
+func WithPeriod(period int) option {
+	return func(o *OTP) error {
+		if period <= 0 {
+			return fmt.Errorf("period must be greater than 0")
+		}
+
+		o.period = period
 		return nil
 	}
 }
