@@ -24,7 +24,15 @@ const (
 	SHA512
 )
 
-type OTP struct {
+const (
+	DefaultWindow = 0
+	DefaultDigits = 6
+	DefaultPeriod = 30
+)
+
+var DefaultHashingAlgorithm = sha1.New
+
+type otp struct {
 	algorithm        algorithm
 	hashingAlgorithm func() hash.Hash
 	digits           int
