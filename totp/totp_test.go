@@ -57,11 +57,8 @@ func TestTOTPGenerate(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		totp := totp.New(
-			totp.WithDigits(len(test.expectedTOTP)),
-			totp.WithHashingAlgorithm(test.hashingAlgorithm),
-		)
-
-		assert.Equal(t, test.expectedTOTP, totp.Generate(test.secret, time.Unix(test.epoch, 0)))
+		otp, err := totp.New(test.hashingAlgorithm, len(test.expectedTOTP), 30).Generate(test.secret, time.Unix(test.epoch, 0))
+		assert.Nil(t, err)
+		assert.Equal(t, test.expectedTOTP, otp)
 	}
 }

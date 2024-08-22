@@ -1,38 +1,42 @@
 package totp
 
 import (
+	"errors"
 	"hash"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
-	"github.com/Jaytpa01/gotp/internal/otp"
 )
 
-type TOTP struct {
-	hashingAlgorithm func() hash.Hash
-	digits           int
-	period           int
-	window           int
+type totp struct {
+	hash   func() hash.Hash
+	digits int
+	period int
 }
 
-func New(opts ...option) *TOTP {
-	totp := &TOTP{
-		hashingAlgorithm: otp.DefaultHashingAlgorithm,
-		digits:           otp.DefaultDigits,
-		period:           otp.DefaultPeriod,
-		window:           otp.DefaultWindow,
+func New(hash func() hash.Hash, digits int, period int) *totp {
+	return &totp{
+		hash:   hash,
+		digits: digits,
+		period: period,
+	}
+}
+
+func (o *totp) validate() error {
+	if o.period <= 0 {
+		return errors.New("period must be greater than 0")
 	}
 
-	totp.applyOpts(opts...)
-	return totp
+	return nil
 }
 
-func (o *TOTP) Generate(secret []byte, when time.Time) string {
-	hotp := hotp.New(
-		hotp.WithHashingAlgorithm(o.hashingAlgorithm),
-		hotp.WithDigits(o.digits),
-	)
+func (o *totp) Generate(secret []byte, when time.Time) (string, error) {
+	err := o.validate()
+	if err != nil {
+		return "", err
+	}
 
 	count := when.Unix() / int64(o.period)
-	return hotp.Generate(secret, count)
+	token := hotp.New(o.hash, o.digits).Generate(secret, count)
+	return token, nil
 }

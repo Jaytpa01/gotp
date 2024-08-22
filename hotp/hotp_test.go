@@ -1,6 +1,7 @@
 package hotp_test
 
 import (
+	"crypto/sha1"
 	"testing"
 
 	"github.com/Jaytpa01/gotp/hotp"
@@ -26,7 +27,7 @@ func TestHOTPGenerate(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		generatedHOTP := hotp.New().Generate([]byte("12345678901234567890"), test.count)
+		generatedHOTP := hotp.New(sha1.New, len(test.expectedHOTP)).Generate([]byte("12345678901234567890"), test.count)
 		assert.Equal(t, test.expectedHOTP, generatedHOTP)
 	}
 }
