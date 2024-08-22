@@ -1,22 +1,21 @@
 package gotp
 
 import (
+	"crypto/sha1"
 	"hash"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
-	"github.com/Jaytpa01/gotp/internal/otp"
 	"github.com/Jaytpa01/gotp/totp"
 )
 
 type algorithm int
+type hashingAlgorithm int
 
 const (
 	TOTP algorithm = iota
 	HOTP
 )
-
-type hashingAlgorithm int
 
 const (
 	SHA1 hashingAlgorithm = iota
@@ -35,31 +34,36 @@ var DefaultHashingAlgorithm = sha1.New
 type otp struct {
 	algorithm        algorithm
 	hashingAlgorithm func() hash.Hash
-	digits           int
 	secret           []byte
+	digits           int
 
+	// for TOTP
+	when   time.Time
 	window int
 	period int
-	count  int64
 
-	issuer      string
+	// for HOTP
+	count int64
+
+	// for URI generation
 	accountName string
+	issuer      string
 }
 
-func New(accountName string, options ...option) (*OTP, error) {
+func New(accountName string, options ...option) (*otp, error) {
 	s, err := RandomSecret(20)
 	if err != nil {
 		return nil, err
 	}
 
-	otp := &OTP{
+	otp := &otp{
 		accountName:      accountName,
-		secret:           s,
 		algorithm:        TOTP,
-		hashingAlgorithm: otp.DefaultHashingAlgorithm,
-		digits:           otp.DefaultDigits,
-		window:           otp.DefaultWindow,
-		period:           otp.DefaultPeriod,
+		hashingAlgorithm: DefaultHashingAlgorithm,
+		secret:           s,
+		digits:           DefaultDigits,
+		window:           DefaultWindow,
+		period:           DefaultPeriod,
 	}
 
 	if err := otp.applyOpts(options...); err != nil {
@@ -69,7 +73,7 @@ func New(accountName string, options ...option) (*OTP, error) {
 	return otp, nil
 }
 
-func (o *OTP) Generate() string {
+func (o *otp) Generate() (string, error) {
 	switch o.algorithm {
 	case TOTP:
 		return o.generateTOTP()
@@ -78,30 +82,34 @@ func (o *OTP) Generate() string {
 		return o.generateHOTP()
 
 	default:
-		return ""
+		return "", nil
 	}
+
 }
 
-func (o *OTP) Secret() []byte {
+func (o *otp) Secret() []byte {
 	return o.secret
 }
 
-func (o *OTP) SecretBase32() string {
+func (o *otp) Base32Secret() string {
 	return Base32Encode(o.secret)
 }
 
-func (o *OTP) generateTOTP() string {
-	return totp.New(
-		totp.WithHashingAlgorithm(o.hashingAlgorithm),
-		totp.WithWindow(o.window),
-		totp.WithDigits(o.digits),
-		totp.WithPeriod(o.period),
-	).Generate(o.secret, time.Now())
+func (o *otp) At(time time.Time) *otp {
+	o.when = time
+	return o
 }
 
-func (o *OTP) generateHOTP() string {
-	return hotp.New(
-		hotp.WithHashingAlgorithm(o.hashingAlgorithm),
-		hotp.WithDigits(o.digits),
-	).Generate(o.secret, o.count)
+func (o *otp) generateTOTP() (string, error) {
+	// use the current timestamp for otp generation unless explicitly set otherwise
+	when := time.Now()
+	if !o.when.IsZero() {
+		when = o.when
+	}
+
+	return totp.New(o.hashingAlgorithm, o.digits, o.period).Generate(o.secret, when)
+}
+
+func (o *otp) generateHOTP() (string, error) {
+	return hotp.New(o.hashingAlgorithm, o.digits).Generate(o.secret, o.count), nil
 }
