@@ -8,9 +8,9 @@ import (
 	"fmt"
 )
 
-type option func(*otp) error
+type option func(*OTP) error
 
-func (o *otp) applyOpts(opts ...option) error {
+func (o *OTP) applyOpts(opts ...option) error {
 	for _, opt := range opts {
 		if err := opt(o); err != nil {
 			return err
@@ -21,28 +21,28 @@ func (o *otp) applyOpts(opts ...option) error {
 }
 
 func WithIssuer(issuer string) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		o.issuer = issuer
 		return nil
 	}
 }
 
 func WithCount(count int64) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		o.count = count
 		return nil
 	}
 }
 
 func WithSecret(secret []byte) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		o.secret = secret
 		return nil
 	}
 }
 
 func WithBase32Secret(s string) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		secret, err := Base32Decode(s)
 		if err != nil {
 			return fmt.Errorf("failed to decode base32 secret: %w", err)
@@ -53,14 +53,14 @@ func WithBase32Secret(s string) option {
 }
 
 func WithHOTP() option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		o.algorithm = HOTP
 		return nil
 	}
 }
 
-func WithHashingAlgorithm(ha hashingAlgorithm) option {
-	return func(o *otp) error {
+func WithHashingAlgorithm(ha HashingAlgorithm) option {
+	return func(o *OTP) error {
 		switch ha {
 		case SHA1:
 			o.hashingAlgorithm = sha1.New
@@ -77,7 +77,7 @@ func WithHashingAlgorithm(ha hashingAlgorithm) option {
 }
 
 func WithPeriod(period int) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		if period <= 0 {
 			return errors.New("period must be greater than 0")
 		}
@@ -88,7 +88,7 @@ func WithPeriod(period int) option {
 }
 
 func WithDigits(digits int) option {
-	return func(o *otp) error {
+	return func(o *OTP) error {
 		if digits <= 0 {
 			return errors.New("digits must be greater than 0")
 		}

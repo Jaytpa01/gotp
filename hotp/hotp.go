@@ -10,15 +10,15 @@ import (
 	"math"
 )
 
-type hotp struct {
+type HOTP struct {
 	hash   func() hash.Hash
 	digits int
 }
 
 // New initialises a new HOTP generator using the supplied hashing
 // function and number of digits.
-func New(hash func() hash.Hash, digits int) *hotp {
-	return &hotp{
+func New(hash func() hash.Hash, digits int) *HOTP {
+	return &HOTP{
 		hash:   hash,
 		digits: digits,
 	}
@@ -26,7 +26,7 @@ func New(hash func() hash.Hash, digits int) *hotp {
 
 // Generate generates a HOTP (HMAC-based One-Time Password) code given
 // the shared secret and count.
-func (o *hotp) Generate(secret []byte, count int64) string {
+func (o *HOTP) Generate(secret []byte, count int64) string {
 	countBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(countBytes, uint64(count))
 
