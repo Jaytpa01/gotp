@@ -1,6 +1,9 @@
 # 🔒 gotp
 
+[![GitHub Release](https://img.shields.io/github/v/release/Jaytpa01/gotp)](https://github.com/Jaytpa01/gotp/releases/latest)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Jaytpa01/gotp.svg)](https://pkg.go.dev/github.com/Jaytpa01/gotp)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Jaytpa01/gotp)](https://goreportcard.com/report/github.com/Jaytpa01/gotp)
 
 gotp is a library for generating and verifying One-Time Passwords (OTP).
 
