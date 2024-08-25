@@ -1,3 +1,5 @@
+// Package totp implements the Time-based One-Time Password (TOTP) algorithm.
+// See https://datatracker.ietf.org/doc/html/rfc6238
 package totp
 
 import (
@@ -14,6 +16,8 @@ type totp struct {
 	period int
 }
 
+// New initialises a new HOTP generator using the supplied hashing
+// function, number of digits, and time period.
 func New(hash func() hash.Hash, digits int, period int) *totp {
 	return &totp{
 		hash:   hash,

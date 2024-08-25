@@ -19,6 +19,6 @@ func TestPadSecret(t *testing.T) {
 
 	for i, test := range tests {
 		paddedSecret := padSecret(test.secret, test.minLength)
-		assert.Equal(t, test.expectedSecret, paddedSecret, "test %d\tsecret lenght: %d\texpected length: %d", i, len(test.secret), len(test.expectedSecret))
+		assert.Equal(t, test.expectedSecret, paddedSecret, "test %d\tsecret length: %d\texpected length: %d", i, len(test.secret), len(test.expectedSecret))
 	}
 }
