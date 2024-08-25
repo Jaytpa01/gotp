@@ -10,6 +10,7 @@ import (
 
 	"github.com/Jaytpa01/gotp/totp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // The test vectors as described in the RFC: https://datatracker.ietf.org/doc/html/rfc6238#appendix-B
@@ -58,7 +59,7 @@ func TestTOTPGenerate(t *testing.T) {
 
 	for _, test := range tests {
 		otp, err := totp.New(test.hashingAlgorithm, len(test.expectedTOTP), 30).Generate(test.secret, time.Unix(test.epoch, 0))
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, test.expectedTOTP, otp)
 	}
 }

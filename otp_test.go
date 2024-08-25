@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // The test vectors as described in the RFC: https://datatracker.ietf.org/doc/html/rfc6238#appendix-B
@@ -62,10 +63,10 @@ func TestDefaultOTP(t *testing.T) {
 			WithSecret(test.secret),
 		)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		token, err := otp.At(time.Unix(test.epoch, 0)).Generate()
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, test.expectedTOTP, token)
 	}
