@@ -1,38 +1,73 @@
+// Package totp implements the Time-based One-Time Password (TOTP) algorithm.
+// See https://datatracker.ietf.org/doc/html/rfc6238
 package totp
 
 import (
-	"crypto/sha1"
+	"errors"
 	"hash"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
 )
 
-type TOTP struct {
-	hashingAlgorithm func() hash.Hash
-	digits           int
-	period           int
-	window           int
+type totp struct {
+	hash   func() hash.Hash
+	digits int
+	period int
 }
 
-func New(opts ...option) *TOTP {
-	totp := &TOTP{
-		hashingAlgorithm: sha1.New,
-		digits:           6,
-		period:           30,
-		window:           0,
+// New initialises a new HOTP generator using the supplied hashing
+// function, number of digits, and time period.
+func New(hash func() hash.Hash, digits int, period int) *totp {
+	return &totp{
+		hash:   hash,
+		digits: digits,
+		period: period,
+	}
+}
+
+// Generate generates a TOTP (Time-based One-Time Password) code given
+// the shared secret and a time.
+func (o *totp) Generate(secret []byte, when time.Time) (string, error) {
+	err := o.validate()
+	if err != nil {
+		return "", err
 	}
 
-	totp.applyOpts(opts...)
-	return totp
+	count := when.Unix() / int64(o.period)
+	token := hotp.New(o.hash, o.digits).Generate(secret, count)
+	return token, nil
 }
 
-func (o *TOTP) Generate(secret []byte, when time.Time) string {
-	hotp := hotp.New(
-		hotp.WithHashingAlgorithm(o.hashingAlgorithm),
-		hotp.WithDigits(o.digits),
-	)
+// padSecret pads the secret byte slice by repeating the secret
+// until it is the desired length
+//
+// e.g:
+// padSecret([]byte("12345678901234567890"), 32)
+// is equal to []byte("12345678901234567890123456789012")
+func padSecret(secret []byte, minLength int) []byte {
+	secretLength := len(secret)
 
-	count := when.Unix() / int64(o.period)
-	return hotp.Generate(secret, count)
+	if secretLength >= minLength {
+		return secret
+	}
+
+	paddedSecret := make([]byte, minLength)
+	copy(paddedSecret, secret) // copy the secret into the padded secret
+
+	// fill the rest of the padded secret by repeating the
+	// supplied secret until it is the desired length
+	for i := secretLength; i < minLength; i++ {
+		paddedSecret[i] = secret[i%secretLength]
+	}
+
+	return paddedSecret
+}
+
+func (o *totp) validate() error {
+	if o.period <= 0 {
+		return errors.New("period must be greater than 0")
+	}
+
+	return nil
 }
