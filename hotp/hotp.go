@@ -1,3 +1,5 @@
+// Package hotp implements the HMAC-based One-Time Password (HOTP) algorithm.
+// See https://datatracker.ietf.org/doc/html/rfc4226
 package hotp
 
 import (
@@ -13,6 +15,8 @@ type hotp struct {
 	digits int
 }
 
+// New initialises a new HOTP generator using the supplied hashing
+// function and number of digits.
 func New(hash func() hash.Hash, digits int) *hotp {
 	return &hotp{
 		hash:   hash,
@@ -20,6 +24,8 @@ func New(hash func() hash.Hash, digits int) *hotp {
 	}
 }
 
+// Generate generates a HOTP (HMAC-based One-Time Password) code given
+// the shared secret and count.
 func (o *hotp) Generate(secret []byte, count int64) string {
 	countBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(countBytes, uint64(count))
