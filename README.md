@@ -9,7 +9,7 @@ gotp is a library for generating and verifying One-Time Passwords (OTP).
 
 It supports both the TOTP (Time-based One-Time Password) algorithm as defined in [RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238), and the HOTP (HMAC-Based One-Time Password) algorithm as defined in [RFC 4226](https://datatracker.ietf.org/doc/html/rfc4226).
 
-Each package has been tesed against the test vectors provided in their respective RFC specifications.
+Each package has been tested against the test vectors provided in their respective RFC specifications.
 
 ## Installation
 
