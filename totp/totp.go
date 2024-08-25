@@ -10,7 +10,7 @@ import (
 	"github.com/Jaytpa01/gotp/hotp"
 )
 
-type totp struct {
+type TOTP struct {
 	hash   func() hash.Hash
 	digits int
 	period int
@@ -18,8 +18,8 @@ type totp struct {
 
 // New initialises a new HOTP generator using the supplied hashing
 // function, number of digits, and time period.
-func New(hash func() hash.Hash, digits int, period int) *totp {
-	return &totp{
+func New(hash func() hash.Hash, digits int, period int) *TOTP {
+	return &TOTP{
 		hash:   hash,
 		digits: digits,
 		period: period,
@@ -28,7 +28,7 @@ func New(hash func() hash.Hash, digits int, period int) *totp {
 
 // Generate generates a TOTP (Time-based One-Time Password) code given
 // the shared secret and a time.
-func (o *totp) Generate(secret []byte, when time.Time) (string, error) {
+func (o *TOTP) Generate(secret []byte, when time.Time) (string, error) {
 	err := o.validate()
 	if err != nil {
 		return "", err
@@ -64,7 +64,7 @@ func padSecret(secret []byte, minLength int) []byte {
 	return paddedSecret
 }
 
-func (o *totp) validate() error {
+func (o *TOTP) validate() error {
 	if o.period <= 0 {
 		return errors.New("period must be greater than 0")
 	}

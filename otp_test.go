@@ -27,7 +27,7 @@ func TestDefaultOTP(t *testing.T) {
 	tests := []struct {
 		epoch            int64
 		expectedTOTP     string
-		hashingAlgorithm hashingAlgorithm
+		hashingAlgorithm HashingAlgorithm
 		secret           []byte
 	}{
 		{59, "94287082", SHA1, sha1Secret},
