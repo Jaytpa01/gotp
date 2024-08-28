@@ -3,6 +3,7 @@ package gotp
 import (
 	"crypto/sha1"
 	"hash"
+	"net/url"
 	"time"
 
 	"github.com/Jaytpa01/gotp/hotp"
@@ -84,7 +85,24 @@ func (o *OTP) Generate() (string, error) {
 	default:
 		return "", nil
 	}
+}
 
+func (o *OTP) URI() string {
+	uri := &url.URL{
+		Scheme: "otpauth",
+	}
+
+	label := o.accountName
+	if o.issuer != "" {
+		label = o.issuer + ":" + o.accountName
+	}
+
+	q := url.Values{}
+	if o.issuer != "" {
+		q.Add("issuer", o.issuer)
+	}
+
+	return ""
 }
 
 func (o *OTP) Secret() []byte {
