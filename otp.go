@@ -115,7 +115,8 @@ func (o *OTP) Generate() (string, error) {
 	}
 }
 
-// URI returns the provisioning uri
+// URI returns the provisioning uri for Authenticator apps.
+// These are normally displayed as QR Codes to an end user
 func (o *OTP) URI() string {
 	uri := &url.URL{
 		Scheme: "otpauth",

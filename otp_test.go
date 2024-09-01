@@ -1,6 +1,8 @@
 package gotp
 
 import (
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -70,4 +72,55 @@ func TestDefaultOTP(t *testing.T) {
 
 		assert.Equal(t, test.expectedTOTP, token)
 	}
+}
+
+func TestTotpURIGeneration(t *testing.T) {
+	uri := "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30"
+	expectedUri, err := consistantUrl(uri)
+	require.NoError(t, err)
+
+	otp, err := New("john.doe@email.com",
+		WithBase32Secret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"),
+		WithIssuer("ACME Co"),
+	)
+
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedUri, otp.URI())
+}
+
+func TestHotpURIGeneration(t *testing.T) {
+	uri := "otpauth://hotp/Example%20Issuer:alice@google.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=Example%20Issuer&algorithm=SHA1&digits=6&count=3"
+	expectedUri, err := consistantUrl(uri)
+	require.NoError(t, err)
+
+	otp, err := New("alice@google.com",
+		WithHOTP(),
+		WithBase32Secret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"),
+		WithIssuer("Example Issuer"),
+		WithCount(3),
+	)
+
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedUri, otp.URI())
+}
+
+// consistantUrl is a small helper that will ensure consistant
+// ordering of url query params, and will use %20 instead of +
+// for encoding space characters
+func consistantUrl(u string) (string, error) {
+	parsed, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+
+	v, err := url.ParseQuery(parsed.RawQuery)
+	if err != nil {
+		return "", err
+	}
+
+	parsed.RawQuery = v.Encode()
+	return strings.ReplaceAll(parsed.String(), "+", "%20"), nil
+
 }
