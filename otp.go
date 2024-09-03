@@ -1,10 +1,13 @@
 package gotp
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+	"fmt"
 	"hash"
+	"image/png"
 	"net/url"
 	"strconv"
 	"strings"
@@ -12,6 +15,8 @@ import (
 
 	"github.com/Jaytpa01/gotp/hotp"
 	"github.com/Jaytpa01/gotp/totp"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 )
 
 type Algorithm int
@@ -156,6 +161,26 @@ func (o *OTP) URI() string {
 	uri.RawQuery = strings.ReplaceAll(q.Encode(), "+", "%20")
 
 	return uri.String()
+}
+
+// QRCode generates a QR code representation of the OTP key URI as a byte slice.
+func (o *OTP) QRCode() ([]byte, error) {
+	qrCode, err := qr.Encode(o.URI(), qr.M, qr.Auto)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't encode uri to qr code: %w", err)
+	}
+
+	qrCode, err = barcode.Scale(qrCode, 150, 150)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't encode uri to qr code: %w", err)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, qrCode); err != nil {
+		return nil, fmt.Errorf("couldn't generate qr code: %w", err)
+	}
+
+	return buf.Bytes(), nil
 }
 
 // Secret returns the secret as a byte slice
