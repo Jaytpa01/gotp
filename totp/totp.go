@@ -34,8 +34,12 @@ func (o *TOTP) Generate(secret []byte, when time.Time) (string, error) {
 		return "", err
 	}
 
+	// get the minimum secret length based on the hashing algorithm used
+	minSecretLen := o.hash().Size()
+	paddedSecret := padSecret(secret, minSecretLen)
+
 	count := when.Unix() / int64(o.period)
-	token := hotp.New(o.hash, o.digits).Generate(secret, count)
+	token := hotp.New(o.hash, o.digits).Generate(paddedSecret, count)
 	return token, nil
 }
 
